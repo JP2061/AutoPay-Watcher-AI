@@ -3,14 +3,50 @@ This document describes the application's architecture, implementation, testing,
 
 ## 1. System Architecture
 ***Application Workflow:***
-- [TODO: Complete Application Workflow]
 
-***Architecture Diagram:***
-- [TODO: Insert System Architecture Diagram]
+**Set Up Streamlit Application & Dashboard**\
+Create the Python web interface for\
+subscription email input and management\
+↓\
+**Implement Email Upload (.eml)**\
+Email manual upload and Python processing\
+*(Optional Gmail syncing if time allows)\
+↓\
+**AI Information Extraction**\
+Use OpenAI API and GPT-6 Luna to\
+extract subscription details into JSON\
+↓\
+**Data Validation**\
+Use Python to check JSON data for missing\
+or invalid subscription details\
+↓\
+**Display & Review Subscription Information**\
+Show AI-extracted details in Streamlit\
+for user review and correction\
+*(Optional Feature)\
+↓\
+**Calculate Recommended Cancellation Date (Safety Buffer)**\
+Use Python to calculate cancellation dates\
+from AI-extracted JSON data with a safety buffer\
+↓\
+**Display Final Subscription Information**\
+(Free Trials & Active Subscriptions)\
+Use Python to organize all trials & subscriptions by expiration\
+and renewal dates, then display the subscription details and\
+recommended cancellation dates in the Streamlit Dashboard\
+↓\
+**Generate & Download .ics Calendar Reminder**\
+Import cancellation dates into calendar applications\
+↓\
+**End-to-End Testing**\
+Verify complete application workflow
+
 
 ***Prototype Development:***
-- **Proof of Concept (PoC):** [TODO: Describe the core functionality demonstrated]
+- **Proof of Concept (PoC):** [TODO: Describe the core functions tested in the PoC]
+
 - **Minimum Viable Product (MVP):** [TODO: Describe the intended end-to-end user flow]
+
 
 ## 2. Development Environment and Setup
 
