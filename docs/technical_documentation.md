@@ -92,7 +92,7 @@ The following sections describe the main components of the application. Each tea
   - [TODO: Describe functionality or improvements that have not yet been implemented.]
     
 
-***Email Parsing and AI Integration*** – [TODO: Team Member Name]
+***Email Parsing and AI Integration*** – Joshua Peng
 
 - **Functions**
   - [TODO: List functions]
