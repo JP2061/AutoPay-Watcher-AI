@@ -9,7 +9,7 @@
 | **Feature** | **Description** |
 |---|---|
 | **Email Upload and Dashboard** | [TODO – Member 1 - Complete Description] |
-| **AI Information Extraction** | [TODO – Member 2 - Complete Description] |
+| **AI Information Extraction** | Uses the OpenAI API to analyze subscription emails and extract important details, including subscription name, price, billing frequency, renewal date and cancellation terms, into JSON format. |
 | **Data Validation and Cancellation Calculations** | [TODO – Member 3 - Complete Description ] |
 | **Calendar Reminders** | [TODO – Member 4 - Complete Description] |
 
