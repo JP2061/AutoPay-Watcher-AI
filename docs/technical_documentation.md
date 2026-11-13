@@ -169,6 +169,6 @@ The following sections describe the main components of the application. Each tea
 | **Member** | **Name** | **Responsibility** | **Progress** |
 |---|---|---|---|
 | Member 1 | [TODO – Member 1] | Email Upload and Dashboard |[TODO] |
-| Member 2 | [TODO – Member 2] | Email Parsing and AI Integration | [TODO]|
+| Member 2 | Joshua Peng | Email Parsing and AI Integration |Planned-10/29/26, In Progress-11/2/26|
 | Member 3 | [TODO – Member 3] | Data Validation and Cancellation Calculations |[TODO] |
 | Member 4 | [TODO – Member 4] | Calendar Reminder Generation |[TODO] |
