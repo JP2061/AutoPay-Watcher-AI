@@ -9,11 +9,15 @@ Create the Python web interface for\
 subscription email input and management\
 ↓\
 **Implement Email Upload (.eml)**\
-Email manual upload and Python processing\
-*(Optional Gmail syncing if time allows)\
+Allow users to manually upload subscription emails in .eml format\
+(Optional Gmail syncing if time allows)\
+↓\
+**Email Parsing**\
+Use Python to read the uploaded .eml files\ 
+and extract the email text needed for analysis\
 ↓\
 **AI Information Extraction**\
-Use OpenAI API and GPT-6 Luna to\
+Use OpenAI API and LLM to\
 extract subscription details into JSON\
 ↓\
 **Data Validation**\
