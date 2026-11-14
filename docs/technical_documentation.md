@@ -97,19 +97,29 @@ The following sections describe the main components of the application. Each tea
 - **Functions**
   - [TODO: List functions]
 - **Implementation**
-  - [TODO: Code explanation and details of implementation,including key design decisions and why the chosen approaches were used.]
+  - Once Users manually upload subscription emails in .eml format and Python reads the email files and extract the text needed for analysis, the email contents will then be sent through the OpenAI API to the LLM. The AI will return the subscription information in JSON format, including the subscription name, price, renewal date and cancellation terms.
+  - We chose to use an LLM because different companies may explain their renewal dates and cancellation policies in diffrent ways. The LLM can understand these differences without requiring us to manually write rules for every possible email format.
 - **AI Model and API**
   - **Model:** [TODO: Model ID]
   - **Prompt:** [TODO: Actual prompt used]
-  - **API Workflow:** [TODO: Explain API calls and how responses are processed]
-  - **Input:** [TODO: Describe input sent to the model]
-  - **Output:** [TODO: Describe expected output]
-  - **AI Limitations:** [TODO: Describe model limitations]
-  - **Technical Contribution:** [TODO: Explain the team's own implementation and integration work]
-- **Implementation Status**
-  - [TODO: In Progress / Completed]
+  - **API Workflow:**Python will send an API request containing the email text and a prompt with instructions to the LLM. The LLM will return the extracted subscription information in JSON format, and Python will then read the JSON response and pass the extracted information to other parts of the application for data validation and cancellation date calculations.
+  - **Input:** Text extracted from subscription emails uploaded in .eml format
+  - **Output:** JSON containing the subscription name, price, billing frequency, renewal date and cancellation terms. If information is missing, we will tell the AI to return unknown instead of guessing the information.
+  - **AI Limitations:** The LLM may not always identify the correct information, especially when emails have unclear working or do not include all the subscription details. This could lead to inaccurate cancellation dates if the information is not checked. 
+  - **Technical Contribution:** The AI extraction component will include developing a prompt that instructs the LLM to identify important subscription information from emails. We will use the OpenAI's Python library to connect the application to the OpenAI API and process the information returned by the LLM into JSON format. We will also test the extraction using sample subscription emails with different renewal dates and cancellation policies. Based on the results of these tests, we can adjust the prompt given to the LLM to improve accuracy.
 - **Planned Work**
-  - [TODO: Describe functionality or improvements that have not yet been implemented.]
+  - Develop the prompt and decide how the subscription information will be organized in JSON format.
+  - Select the OpenAI API model and connect it to the Python application.
+  - Test the AI extraction using sample subscription emails with different formats and cancellation policies.
+  - Compare the information extracted by the LLM with the actual information written in the emails.
+  - Adjust the prompt based on the testing results to improve accuracy.
+  - Connect the extracted information in JSON to the data validation and cancellation date calculation part of the application.
+- **Implementation Status**
+  - Progress:
+    - 10/29/2026: Initial project planning, GitHub repository setup and discussion of team responsibilities and development plans for each part of the application.
+    - 11/13/2026: Implementation and documentation for the AI extraction part of the application.
+  - Completed:\
+    [TODO: Sections completed and date]
 
 ***Data Validation and Cancellation Calculations*** – [TODO: Team Member Name]
 
@@ -169,6 +179,6 @@ The following sections describe the main components of the application. Each tea
 | **Member** | **Name** | **Responsibility** | **Progress** |
 |---|---|---|---|
 | Member 1 | [TODO – Member 1] | Email Upload and Dashboard |[TODO] |
-| Member 2 | Joshua Peng | Email Parsing and AI Integration |Planned-10/29/26, In Progress-11/2/26|
+| Member 2 | Joshua Peng | Email Parsing and AI Integration |Planned-10/29/26, In Progress-11/13/2026|
 | Member 3 | [TODO – Member 3] | Data Validation and Cancellation Calculations |[TODO] |
 | Member 4 | [TODO – Member 4] | Calendar Reminder Generation |[TODO] |
