@@ -1,0 +1,22 @@
+[
+  {
+    "service_name": "DesignLab Plus",
+    "record_type": "trial",
+    "amount": 12,
+    "frequency": "Monthly",
+    "trial_end_date": "2026-11-27",
+    "renewal_date": null,
+    "cancellation_deadline": null,
+    "cancellation_instructions": "Cancel at least 48 hours before trial expiry through Account > Billing. Deadline calculation belongs to validation teammate."
+  },
+  {
+    "service_name": "CloudBox Basic",
+    "record_type": "subscription",
+    "amount": 8,
+    "frequency": "Monthly",
+    "trial_end_date": null,
+    "renewal_date": "2026-12-12",
+    "cancellation_deadline": null,
+    "cancellation_instructions": "Manage from account billing settings. Exact cancellation deadline unknown."
+  }
+]
