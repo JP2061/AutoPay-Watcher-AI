@@ -103,7 +103,16 @@ def main():
     )
     st.title("AutoPay Wather AI")
     """
+    # Joshua's Email Upload and Dashboard
+    mode = st.sidebar.selectbox(
+        "Application Mode",
+        ["Dashboard", "AI Extraction Test"]
+    )
 
+    if mode == "Dashboard":
+        from dashboard_ui import render_app
+        render_app(ai_extractor=extract_subscription)
+        return
     # [TODO: Call and integrate all Functions in main()]
 
     # Test AI Extraction
