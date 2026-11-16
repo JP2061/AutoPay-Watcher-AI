@@ -12,7 +12,7 @@ load_dotenv()
 
 
 # [TODO: Implement MAIL UPLOAD AND DASHBOARD Functions]
-
+#11/15
 
 # Email Parsing and AI Information extraction functions
 def parse_email(file_path):
