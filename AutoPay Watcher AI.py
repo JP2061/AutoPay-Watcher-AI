@@ -3,10 +3,12 @@
 import streamlit as st
 import os
 import json
+import math
 from dotenv import load_dotenv
 from openai import OpenAI
 from email import policy
 from email.parser import BytesParser
+from datetime import datetime
 
 load_dotenv()
 
@@ -46,18 +48,18 @@ def extract_subscription(email_content, client):
         renewal_date
         cancellation_policy
         cancellation_notice_amount
-        cancellation_notic_unit
+        cancellation_notice_unit        #Fixed typo
 
         For cancellation_notice_amount, return a number.
 
-        For cancellation_ontice_unit, use one of:
+        For cancellation_notice_unit, use one of:       #Fixed typo
         hours, days, weeks, months
 
         Examples:
         "Cancel 24 hours before renewal" -> 24, hours
         "Cancel 48 hours before renewal" -> 48, hours
         "Cancel 3 days before renewal" -> 3, days
-        "Cancel 2 weeks before renewal" -> 3, weeks
+        "Cancel 2 weeks before renewal" -> 2, weeks     #Fixed from 3 to 2
 
         if cancellation policy is missing or unclear, 
         use null for the amount and unit.
@@ -89,6 +91,16 @@ def extract_subscription(email_content, client):
 
 # [TODO: Implement DATA VALIDATION AND CANCELLATION DATES Functions]
 
+def validate_subscription(data):
+    errors = []
+
+    # Make sure data is a dictionary
+    if not isinstance(data, dict):
+        return ["Subscription information must be a dictionary."]
+
+    name = data.get("name")
+    if not isinstance(name, str) or not name.strip():
+        errors.append("Subscription name is missing or invalid.")
 
 # [TODO: Implement AI CALENDAR REMINDERS Functions]
 
