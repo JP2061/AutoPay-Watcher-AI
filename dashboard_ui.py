@@ -230,7 +230,7 @@ def render_dashboard() -> None:
                 st.progress(float(cost / monthly) if monthly else 0.0)
 
 
-def render_mail_upload(ai_extractor=None) -> None:
+def render_mail_upload(ai_extractor=None, validator=None) -> None:
     render_hero("Email inbox")
     st.markdown('<div class="section-label">UPLOAD EMAILS</div>', unsafe_allow_html=True)
     uploaded = st.file_uploader("Select subscription confirmation, renewal, or trial emails", type=["eml", "txt"], accept_multiple_files=True)
@@ -497,13 +497,13 @@ def render_sidebar() -> str:
     return page
 
 
-def render_app(ai_extractor=None) -> None:
+def render_app(ai_extractor=None, validator=None) -> None:
     initialize_database()
     page = render_sidebar()
     if page == "Overview":
         render_dashboard()
     elif page == "Email inbox":
-        render_mail_upload(ai_extractor=ai_extractor)
+        render_mail_upload(ai_extractor=ai_extractor, validator=validator)
     elif page == "Manage records":
         render_manage()
     else:

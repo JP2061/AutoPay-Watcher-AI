@@ -89,6 +89,15 @@ def extract_subscription(email_content, client):
         If the subscription will not renew, do not return a future
         renewal date.
 
+        For price:
+        Return a JSON number without quotation marks, currency symbols, or currency codes.
+        For example, "$9.99 USD" must be returned as 9.99.
+        If the price is missing or unclear, return null.
+
+        For renewal_date: 
+        Use Month DD, YYYY, such as November 30, 2026.
+        If the renewal date is unknown, return null.
+
         Do not calculate the recommended cancellation date.
         Python will use the extracted renewal date and cancellation
         requirements to calculate a recommended cancellation date,
@@ -200,7 +209,7 @@ def main():
 
     if mode == "Dashboard":
         from dashboard_ui import render_app
-        render_app(ai_extractor=extract_subscription)
+        render_app(ai_extractor=extract_subscription, validator=validate_subscription)
         return
     # [TODO: Call and integrate all Functions in main()]
 
@@ -215,7 +224,7 @@ def main():
     client = OpenAI(api_key=api_key)
     try:
         # Email parsing
-        file_path = "D:\\rp\\Documents\\A - Joshua's Folders\\CSULB\\FALL 2026\\CECS 451\\FINAL PROJECT\\AutoRenewTrackerAI\\sample_email_1.eml"
+        file_path = "D:\CECS 451\Project repo\AutoPay-Watcher-AI\samples\sample_subscription.eml"
         email_content = parse_email(file_path)
 
         st.subheader("Parsed Email Content:")  # Changed from printing to console to displaying in Streamlit app
@@ -229,21 +238,12 @@ def main():
 
      # Validate the extracted data and show issues for user review.
         issues = validate_subscription(result)
-        print("\nValidation messages:")
+        st.subheader("Validation Messages: ")
         if issues:
             for issue in issues:
-                print("-", issue)
+                st.warning(issue)
         else:
-            print("No validation problems found.")
-
-     # Validate the extracted data and show issues for user review.
-        issues = validate_subscription(result)
-        print("\nValidation messages:")
-        if issues:
-            for issue in issues:
-                print("-", issue)
-        else:
-            print("No validation problems found.")
+            st.success("No validation problems found.")
 
     except Exception as error:
         st.error(f"Error: {error}") # Changed from printing to console to displaying in Streamlit app
