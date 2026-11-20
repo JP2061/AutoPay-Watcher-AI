@@ -70,9 +70,9 @@ OPENAI_API_KEY=your_api_key_here
 
 Keep the `.env` file and API credentials private. The project’s `.gitignore` prevents Git from tracking `.env`.
 
-## 4. Run the Prototype
+## 4. Run the Prototype & Reproduce Sample Result
 
-### Required Project Files
+### Required Project Files:
 
 These files are included in the cloned repository; no separate downloads are needed.
 
@@ -87,7 +87,7 @@ These files are included in the cloned repository; no separate downloads are nee
 
 Keep the Python files in their repository locations so their imports work.
 
-### Start the Application (from the repository root)
+### Start the Application (from the repository root):
 
 ```bash
 python -m streamlit run "AutoPay Watcher AI.py"
@@ -95,6 +95,7 @@ python -m streamlit run "AutoPay Watcher AI.py"
 
 Once Streamlit launches, the application opens in your browser (usually at `http://localhost:8501`), displaying **Dashboard** under **Application Mode** with the **Overview** page selected by default.
 
+### Reproduce a Sample Result:
 To reproduce the main workflow:
 
 1. While in **Dashboard** application mode, **select Email inbox** from the left sidebar. In the main dashboard area on the right, **select Upload emails**, **choose** `samples/sample_email_1.eml` or another sample email from the `samples/` folder, and **click Import selected emails**. If an email has already been imported, the duplicate will be skipped and will not be added to the database again.
