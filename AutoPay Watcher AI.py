@@ -4,11 +4,12 @@ import streamlit as st
 import os
 import json
 import math
+import calendar
 from dotenv import load_dotenv
 from openai import OpenAI
 from email import policy
 from email.parser import BytesParser
-from datetime import datetime
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -88,6 +89,15 @@ def extract_subscription(email_content, client):
         has already been cancelled.
         If the subscription will not renew, do not return a future
         renewal date.
+
+        For price:
+        Return a JSON number without quotation marks, currency symbols, or currency codes.
+        For example, "$9.99 USD" must be returned as 9.99.
+        If the price is missing or unclear, return null.
+
+        For renewal_date: 
+        Use Month DD, YYYY, such as November 30, 2026.
+        If the renewal date is unknown, return null.
 
         Do not calculate the recommended cancellation date.
         Python will use the extracted renewal date and cancellation
@@ -181,6 +191,103 @@ def validate_subscription(data):
 
     return errors
 
+def calculate_cancellation_date(data, safety_buffer_days=1):
+    #Check for valid data and safety_buffer
+    if not isinstance(data, dict):
+        return None, "Subscription information must be a dictionary."
+
+    if type(safety_buffer_days) is not int or safety_buffer_days < 0:
+        return None, "Safety buffer must be a nonnegative whole number of days."
+
+    #Convert renewdal date into a datetime object
+    try:
+        renewal = datetime.strptime(data.get("renewal_date"), "%B %d, %Y")
+    except (ValueError, TypeError):
+        return None, "A valid renewal date is required for calculation."
+
+    #Get cancellation notice amount and unit
+    amount = data.get("cancellation_notice_amount")
+    unit = data.get("cancellation_notice_unit")
+
+    #Check for valid amount and unit
+    if amount is None or unit is None:
+        return None, "Cancellation notice is unknown, review the policy."
+    if not valid_number(amount):
+        return None, "Cancellation notice must be a finite, nonnegative number."
+
+    try:
+        #Substract the notice amount from the renewal date
+        if unit == "hours":
+            notice_date = renewal - timedelta(hours=amount)
+
+        elif unit == "days":
+            notice_date = renewal - timedelta(days=amount)
+
+        elif unit == "weeks":
+            notice_date = renewal - timedelta(weeks=amount)
+
+        elif unit == "months":
+            #Check if month is a valid number
+            if amount != int(amount):
+                return None, "Month-based notice must be a whole number."
+            #Convert year into months, subtract 1 because start with index 0, then substract notice amount
+            total_months = (renewal.year * 12 + renewal.month - 1 - int(amount))
+            #Get the year and month remainder, then add 1 back in because of index 
+            year, month_index = divmod(total_months, 12)
+            month = month_index + 1
+
+            if not 1 <= year <= 9999:
+                return None, "Calculated date is outside the supported range."
+
+            #Check if renewal day is bigger than the last day of the month, choose the smaller one
+            #Handle dates such as March 31 minus one month
+            last_day = calendar.monthrange(year, month)[1]
+            day = min(renewal.day, last_day)
+
+            #Create new datetime object
+            notice_date = renewal.replace(year = year, month = month, day = day)
+        else:
+            return None, "Unsupported cancellation notice unit."
+
+        #Substract the extra buffer, keep it as a calendar date
+        recommended = (notice_date - timedelta(days = safety_buffer_days)).date()
+
+    except (ValueError, OverflowError):
+        return None, "Calculated date is outside the supported range."
+    
+    return recommended, None
+
+def extract_for_dashboard(email_content, client):
+    # Get extracted information from AI
+    result = extract_subscription(email_content, client)
+    if not isinstance(result, dict):
+        raise ValueError("The extracted result must be a dictionary.")
+
+    # Call calculate_cancellation_date()
+    recommended_date, error = calculate_cancellation_date(result)
+
+    # Display calculation error
+    if error:
+        calculation_note = ("Could not calculate a recommended cancellation date: " + error)
+
+    # Display recommended cancellation date
+    else:
+        calculation_note = (
+            "Recommended cancellation date: " + recommended_date.strftime("%B %d, %Y")
+            + ". Includes a 1-day safety buffer. This is a recommendation, not a guranteed deadline."
+        )
+        if recommended_date < datetime.now().date():
+            calculation_note += ("The recommended cancellation date has already passed, please review the policy.")
+
+    # Preserve existing notes and add in calculation notes
+    existing_notes = result.get("notes")
+    if isinstance(existing_notes, str) and existing_notes.strip():
+        result["notes"] = existing_notes.strip() + "\n" + calculation_note
+    else:
+        result["notes"] = calculation_note
+
+    return result
+
 # [TODO: Implement AI CALENDAR REMINDERS Functions]
 
 
@@ -200,7 +307,7 @@ def main():
 
     if mode == "Dashboard":
         from dashboard_ui import render_app
-        render_app(ai_extractor=extract_subscription)
+        render_app(ai_extractor=extract_for_dashboard, validator=validate_subscription)
         return
     # [TODO: Call and integrate all Functions in main()]
 
@@ -215,7 +322,7 @@ def main():
     client = OpenAI(api_key=api_key)
     try:
         # Email parsing
-        file_path = "D:\\rp\\Documents\\A - Joshua's Folders\\CSULB\\FALL 2026\\CECS 451\\FINAL PROJECT\\AutoRenewTrackerAI\\sample_email_1.eml"
+        file_path = "D:\CECS 451\Project repo\AutoPay-Watcher-AI\samples\sample_email_1.eml"
         email_content = parse_email(file_path)
 
         st.subheader("Parsed Email Content:")  # Changed from printing to console to displaying in Streamlit app
@@ -227,23 +334,25 @@ def main():
         st.subheader("Extracted Subscription Information:") # Changed from printing to console to displaying in Streamlit app
         st.code(json.dumps(result, indent=4), language="json") # Display formatted JSON in Streamlit
 
-     # Validate the extracted data and show issues for user review.
+        # Validate the extracted data and show issues for user review.
         issues = validate_subscription(result)
-        print("\nValidation messages:")
+        st.subheader("Validation Messages")
         if issues:
             for issue in issues:
-                print("-", issue)
+                st.warning(issue)
         else:
-            print("No validation problems found.")
+            st.success("No validation problems found.")
 
-     # Validate the extracted data and show issues for user review.
-        issues = validate_subscription(result)
-        print("\nValidation messages:")
-        if issues:
-            for issue in issues:
-                print("-", issue)
+        # Cancellation Date Calculation
+        st.subheader("Recommended Cancellation Date")
+        recommended_date, error = calculate_cancellation_date(result)
+        if error:
+            st.warning(error)
         else:
-            print("No validation problems found.")
+            st.write("Recommended cancellation date: " + recommended_date.strftime("%B %d, %Y"))
+            st.caption("Includes a 1-day safety buffer. This is a recommendation, not a guranteed deadline.")
+            if recommended_date < datetime.now().date():
+                st.warning("The recommended cancellation date has already passed, please review the policy.")
 
     except Exception as error:
         st.error(f"Error: {error}") # Changed from printing to console to displaying in Streamlit app
