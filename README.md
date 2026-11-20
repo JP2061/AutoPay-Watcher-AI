@@ -87,7 +87,7 @@ These files are included in the cloned repository; no separate downloads are nee
 
 Keep the Python files in their repository locations so their imports work.
 
-**Start the application** from the repository root:
+### Start the Application (from the repository root)
 
 ```bash
 python -m streamlit run "AutoPay Watcher AI.py"
