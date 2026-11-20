@@ -10,6 +10,7 @@ from openai import OpenAI
 from email import policy
 from email.parser import BytesParser
 from datetime import datetime, timedelta
+from autopay_core import initialize_database, list_emails, get_email
 
 load_dotenv()
 
@@ -265,6 +266,9 @@ def extract_for_dashboard(email_content, client):
 
     # Call calculate_cancellation_date()
     recommended_date, error = calculate_cancellation_date(result)
+    result["cancellation_deadline"] = (
+    recommended_date.isoformat() if recommended_date is not None else None
+    )
 
     # Display calculation error
     if error:
@@ -306,7 +310,7 @@ def main():
     )
 
     if mode == "Dashboard":
-        from dashboard_ui import render_app
+        from dashboard_ui_final import render_app
         render_app(ai_extractor=extract_for_dashboard, validator=validate_subscription)
         return
     # [TODO: Call and integrate all Functions in main()]
@@ -321,9 +325,37 @@ def main():
         
     client = OpenAI(api_key=api_key)
     try:
-        # Email parsing
-        file_path = "D:\CECS 451\Project repo\AutoPay-Watcher-AI\samples\sample_email_1.eml"
-        email_content = parse_email(file_path)
+        # Email parsing - retrieve previously uploaded emails
+        initialize_database()
+        emails = list_emails()
+
+        if not emails:
+            st.warning(
+                "No saved emails found. Upload an email through "
+                "Dashboard > Email inbox first."
+            )
+            return
+
+        # Let the user choose which email to analyze
+        selected_id = st.selectbox(
+            "Select an uploaded email",
+            options=[email["id"] for email in emails],
+            format_func=lambda email_id: next(
+                f"#{email['id']} - {email['subject'] or email['filename']}"
+                for email in emails
+                if email["id"] == email_id
+            )
+        )
+
+        # Retrieve the selected email from the database
+        selected_email = get_email(selected_id)
+
+        if selected_email is None:
+            st.error("Selected email not found.")
+            return
+
+        # The email was already parsed when uploaded
+        email_content = selected_email["body_text"]
 
         st.subheader("Parsed Email Content:")  # Changed from printing to console to displaying in Streamlit app
         st.write(email_content)  # Print the parsed email content to the Streamlit app
