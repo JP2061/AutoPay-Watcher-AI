@@ -113,7 +113,7 @@ def render_hero(page: str) -> None:
     )
 
 
-def render_email_source(record: dict) -> None:
+def render_email_source(record: dict, section: str) -> None:
     email_id = record.get("email_id")
     if email_id is None:
         st.caption("Source email: not linked. Add or edit this record in Manage records.")
@@ -128,11 +128,11 @@ def render_email_source(record: dict) -> None:
         st.download_button(
             "Download original email", data=email["original_bytes"], file_name=email["filename"],
             mime="message/rfc822" if email["filename"].lower().endswith(".eml") else "text/plain",
-            key=f"email_dl_{record['id']}",
+            key=f"email_dl{section}_{record['id']}",
         )
 
 
-def render_subscription_card(record: dict) -> None:
+def render_subscription_card(record: dict, section: str) -> None:
     is_trial = record["record_type"] == "trial"
     event = record["trial_end_date"] if is_trial else record["renewal_date"]
     needs_review = not event or (record["amount_cents"] is None and not is_trial)
@@ -154,7 +154,7 @@ def render_subscription_card(record: dict) -> None:
             st.caption(urgency(event))
         footer_a, footer_b = st.columns([1, 1])
         with footer_a:
-            st.caption(f"Cancellation deadline: {readable_date(record['cancellation_deadline'])}")
+            st.caption(f"Cancellation date / deadline: {readable_date(record['cancellation_deadline'])}")
         with footer_b:
             if record["cancellation_instructions"]:
                 st.caption("Cancellation instructions available ↓")
@@ -166,7 +166,7 @@ def render_subscription_card(record: dict) -> None:
                     st.write(record["cancellation_instructions"])
                 if record["notes"]:
                     st.caption(f"Notes: {record['notes']}")
-        render_email_source(record)
+        render_email_source(record, section)
 
 
 def render_dashboard() -> None:
@@ -202,19 +202,19 @@ def render_dashboard() -> None:
         if not trials:
             st.info("No free trials have been added.")
         for record in sort_by_upcoming(trials, "trial_end_date"):
-            render_subscription_card(record)
+            render_subscription_card(record, "trial")
     with tab_sub:
         st.markdown('<div class="section-label">NEXT RENEWAL FIRST</div>', unsafe_allow_html=True)
         if not subs:
             st.info("No active subscriptions have been added.")
         for record in sort_by_upcoming(subs, "renewal_date"):
-            render_subscription_card(record)
+            render_subscription_card(record, "subscription")
     with tab_review:
         missing = [r for r in rows if not (r["trial_end_date"] if r["record_type"] == "trial" else r["renewal_date"])]
         if not missing:
             st.success("Every active entry has its next renewal or trial-end date.")
         for record in missing:
-            render_subscription_card(record)
+            render_subscription_card(record, "review")
 
     if subs:
         st.markdown('<div class="section-label">COST BREAKDOWN</div>', unsafe_allow_html=True)
@@ -308,6 +308,7 @@ def render_mail_upload(ai_extractor=None, validator=None) -> None:
                         result = ai_extractor(email["body_text"], OpenAI(api_key=api_key))
                     if not isinstance(result, dict):
                         raise ValueError("The AI result must be one JSON object.")
+                    validation_issues = validator(result) if validator else []
                     normalized = normalize_subscription(result)
                 except Exception as exc:
                     st.error(f"AI extraction failed: {exc}")
@@ -317,11 +318,43 @@ def render_mail_upload(ai_extractor=None, validator=None) -> None:
                         "email_id": selected_id,
                         "raw": result,
                         "normalized": normalized,
+                        "validation_issues": validation_issues,
                     }
         pending = st.session_state.get("pending_ai_result")
         if pending and pending.get("email_id") == selected_id:
-            st.warning("Review every extracted field against the original email before saving. Cancellation deadlines are not calculated or verified here.")
-            st.code(json.dumps(pending["raw"], indent=2), language="json")
+            st.warning("Review all extracted information before saving. "
+                       "Calculated cancellation dates are recommendations, not verified deadlines."
+                       " If any detail is wrong, correct it in Manage records after saving."
+                       )
+            # Display validation results
+            st.subheader("Validation Messages")
+
+            issues = pending.get("validation_issues", [])
+
+            if issues:
+                for issue in issues:
+                    st.warning(issue)
+            else:
+                st.success("No validation problems found.")
+
+            # Display calculated cancellation date
+            st.subheader("Recommended Cancellation Date")
+
+            calculated_date = pending["normalized"].get("cancellation_deadline")
+
+            if calculated_date:
+                st.success(
+                    f"Recommended cancellation date: {readable_date(calculated_date)}"
+                )
+                st.caption(
+                    "Includes a 1-day safety buffer. "
+                    "Verify against the subscription policy."
+                )
+            else:
+                st.warning(
+                    "A recommended cancellation date could not be calculated. "
+                    "Review the cancellation policy."
+                )
             st.caption("Normalized dashboard preview (read-only). To correct mistakes, use Manage records after saving.")
             st.json(pending["normalized"])
             if st.button("Save reviewed AI result to dashboard", type="primary", key=f"ai_save_{selected_id}"):
