@@ -13,7 +13,7 @@ Allow users to manually upload subscription emails in .eml format\
 (Optional Gmail syncing if time allows)\
 ↓\
 **Email Parsing**\
-Use Python to read the uploaded .eml files\ 
+Use Python to read the uploaded .eml files\
 and extract the email text needed for analysis\
 ↓\
 **AI Information Extraction**\

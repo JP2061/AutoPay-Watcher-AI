@@ -58,57 +58,17 @@ def extract_subscription(email_content, client):
         renewal_date
         cancellation_policy
         cancellation_notice_amount
-        cancellation_notice_unit
-
-        Use these exact field names in the JSON output.
-        Do not include additional fields or comments.
-        If a field is missing or unclear, use null for its value.
-        Always include all seven fields, even if their values are null.
-        Do not make up information that is not provided in the email content.
-
-        For name:
-        Return the subscription service or plan name.
-        For example, if the email says "Netflix Standard",
-        return "Netflix Standard".
-
-        For price:
-        Return a JSON number without a dollar sign or quotation marks.
-        For example, if the email says "Price: $9.99",
-        return 9.99, not "$9.99" or "9.99".
-        Use the recurring subscription price, not a one-time charge.
-        If the email includes different prices, identify the price
-        for the next recurring payment.
-        If the price is unknown, return null.
-
-        For billing_cycle:
-        Identify how often the subscription is billed.
-        For example, Monthly, Yearly, or Weekly.
-        If the billing frequency is missing or unclear, return null.
-
-        For renewal_date:
-        Identify the next subscription renewal date.
-        For a free trial, identify the expiration date if the email content
-        states that the subscription will begin charging after the trial.
-        Do not confuse previous billing dates with the next renewal date.
-        For renewal_date, use the format Month DD, YYYY.
-        For example: November 30, 2026.
-        If the renewal date is missing or unclear, return null.
-
-        For cancellation_policy:
-        Identify the cancellation terms and requirements from the email content.
-        Return a short summary of how and when the user must cancel.
-        Include cancellation instructions if they are provided.
-        If the cancellation policy is missing, return null.
+        cancellation_notice_unit        #Fixed typo
 
         For cancellation_notice_amount, return a number.
 
-        For cancellation_notice_unit, use one of:
+        For cancellation_notice_unit, use one of:       #Fixed typo
         hours, days, weeks, months
         Examples:
         "Cancel 24 hours before renewal" -> 24, hours
         "Cancel 48 hours before renewal" -> 48, hours
         "Cancel 3 days before renewal" -> 3, days
-        "Cancel 2 weeks before renewal" -> 2, weeks
+        "Cancel 2 weeks before renewal" -> 2, weeks     #Fixed from 3 to 2
 
         If the cancellation policy is missing or unclear,
         use null for the amount and unit.
@@ -266,6 +226,15 @@ def main():
 
         st.subheader("Extracted Subscription Information:") # Changed from printing to console to displaying in Streamlit app
         st.code(json.dumps(result, indent=4), language="json") # Display formatted JSON in Streamlit
+
+     # Validate the extracted data and show issues for user review.
+        issues = validate_subscription(result)
+        print("\nValidation messages:")
+        if issues:
+            for issue in issues:
+                print("-", issue)
+        else:
+            print("No validation problems found.")
 
      # Validate the extracted data and show issues for user review.
         issues = validate_subscription(result)
