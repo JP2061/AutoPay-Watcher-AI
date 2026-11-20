@@ -266,6 +266,9 @@ def extract_for_dashboard(email_content, client):
 
     # Call calculate_cancellation_date()
     recommended_date, error = calculate_cancellation_date(result)
+    result["cancellation_deadline"] = (
+    recommended_date.isoformat() if recommended_date is not None else None
+    )
 
     # Display calculation error
     if error:
@@ -307,7 +310,7 @@ def main():
     )
 
     if mode == "Dashboard":
-        from dashboard_ui import render_app
+        from dashboard_ui_final import render_app
         render_app(ai_extractor=extract_for_dashboard, validator=validate_subscription)
         return
     # [TODO: Call and integrate all Functions in main()]
@@ -322,49 +325,37 @@ def main():
         
     client = OpenAI(api_key=api_key)
     try:
-        # Load uploaded email for AI information extraction
+        # Email parsing - retrieve previously uploaded emails
         initialize_database()
         emails = list_emails()
 
-        # Check if any emails have been uploaded
         if not emails:
-            st.info("Upload and import an email through Dashboard → Email inbox first.")
+            st.warning(
+                "No saved emails found. Upload an email through "
+                "Dashboard > Email inbox first."
+            )
             return
 
-        # Create labels for saved emails
-        email_labels = {
-            email["id"]: (
-                f"#{email['id']} — "
-                f"{email['subject'] or email['filename']}"
-            )
-            for email in emails
-        }
-
-        # Select an email for AI extraction
+        # Let the user choose which email to analyze
         selected_id = st.selectbox(
-            "Choose a saved email to test",
-            options=list(email_labels.keys()),
-            format_func=lambda email_id: email_labels[email_id],
-            key="extraction_test_saved_email"
+            "Select an uploaded email",
+            options=[email["id"] for email in emails],
+            format_func=lambda email_id: next(
+                f"#{email['id']} - {email['subject'] or email['filename']}"
+                for email in emails
+                if email["id"] == email_id
+            )
         )
 
-        # Get the selected email from the database
+        # Retrieve the selected email from the database
         selected_email = get_email(selected_id)
 
         if selected_email is None:
-            st.warning("This email is no longer available.")
+            st.error("Selected email not found.")
             return
 
-        # Get the email text for AI extraction
+        # The email was already parsed when uploaded
         email_content = selected_email["body_text"]
-
-        if not email_content or not email_content.strip():
-            st.warning("This email has no readable text.")
-            return
-
-        # Run AI extraction when the button is clicked
-        if not st.button("Analyze selected test email"):
-            return
 
         st.subheader("Parsed Email Content:")  # Changed from printing to console to displaying in Streamlit app
         st.write(email_content)  # Print the parsed email content to the Streamlit app
