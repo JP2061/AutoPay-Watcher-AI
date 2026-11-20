@@ -1,0 +1,19 @@
+From: billing@example.com
+To: student@example.com
+Subject: Your Netflix Subscription Renewal
+Date: Thu, 15 Oct 2026 10:00:00 -0700
+Content-Type: text/plain; charset=UTF-8
+
+Hello,
+
+Your Netflix subscription will automatically renew on November 15, 2026.
+
+Subscription: Netflix Standard
+Monthly Price: $17.99
+Billing Frequency: Monthly
+Next Renewal Date: November 15, 2026
+
+To avoid being charged, cancel your subscription at least
+24 hours before your next renewal date.
+
+Thank you!

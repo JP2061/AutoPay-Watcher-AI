@@ -257,6 +257,37 @@ def calculate_cancellation_date(data, safety_buffer_days=1):
     
     return recommended, None
 
+def extract_for_dashboard(email_content, client):
+    # Get extracted information from AI
+    result = extract_subscription(email_content, client)
+    if not isinstance(result, dict):
+        raise ValueError("The extracted result must be a dictionary.")
+
+    # Call calculate_cancellation_date()
+    recommended_date, error = calculate_cancellation_date(result)
+
+    # Display calculation error
+    if error:
+        calculation_note = ("Could not calculate a recommended cancellation date: " + error)
+
+    # Display recommended cancellation date
+    else:
+        calculation_note = (
+            "Recommended cancellation date: " + recommended_date.strftime("%B %d, %Y")
+            + ". Includes a 1-day safety buffer. This is a recommendation, not a guranteed deadline."
+        )
+        if recommended_date < datetime.now().date():
+            calculation_note += ("The recommended cancellation date has already passed, please review the policy.")
+
+    # Preserve existing notes and add in calculation notes
+    existing_notes = result.get("notes")
+    if isinstance(existing_notes, str) and existing_notes.strip():
+        result["notes"] = existing_notes.strip() + "\n" + calculation_note
+    else:
+        result["notes"] = calculation_note
+
+    return result
+
 # [TODO: Implement AI CALENDAR REMINDERS Functions]
 
 
@@ -276,7 +307,7 @@ def main():
 
     if mode == "Dashboard":
         from dashboard_ui import render_app
-        render_app(ai_extractor=extract_subscription, validator=validate_subscription)
+        render_app(ai_extractor=extract_for_dashboard, validator=validate_subscription)
         return
     # [TODO: Call and integrate all Functions in main()]
 
@@ -291,7 +322,7 @@ def main():
     client = OpenAI(api_key=api_key)
     try:
         # Email parsing
-        file_path = "D:\CECS 451\Project repo\AutoPay-Watcher-AI\samples\sample_subscription.eml"
+        file_path = "D:\CECS 451\Project repo\AutoPay-Watcher-AI\samples\sample_email_1.eml"
         email_content = parse_email(file_path)
 
         st.subheader("Parsed Email Content:")  # Changed from printing to console to displaying in Streamlit app
