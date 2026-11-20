@@ -10,6 +10,7 @@ from openai import OpenAI
 from email import policy
 from email.parser import BytesParser
 from datetime import datetime, timedelta
+from autopay_core import initialize_database, list_emails, get_email
 
 load_dotenv()
 
@@ -321,9 +322,49 @@ def main():
         
     client = OpenAI(api_key=api_key)
     try:
-        # Email parsing
-        file_path = "D:\CECS 451\Project repo\AutoPay-Watcher-AI\samples\sample_email_1.eml"
-        email_content = parse_email(file_path)
+        # Load uploaded email for AI information extraction
+        initialize_database()
+        emails = list_emails()
+
+        # Check if any emails have been uploaded
+        if not emails:
+            st.info("Upload and import an email through Dashboard → Email inbox first.")
+            return
+
+        # Create labels for saved emails
+        email_labels = {
+            email["id"]: (
+                f"#{email['id']} — "
+                f"{email['subject'] or email['filename']}"
+            )
+            for email in emails
+        }
+
+        # Select an email for AI extraction
+        selected_id = st.selectbox(
+            "Choose a saved email to test",
+            options=list(email_labels.keys()),
+            format_func=lambda email_id: email_labels[email_id],
+            key="extraction_test_saved_email"
+        )
+
+        # Get the selected email from the database
+        selected_email = get_email(selected_id)
+
+        if selected_email is None:
+            st.warning("This email is no longer available.")
+            return
+
+        # Get the email text for AI extraction
+        email_content = selected_email["body_text"]
+
+        if not email_content or not email_content.strip():
+            st.warning("This email has no readable text.")
+            return
+
+        # Run AI extraction when the button is clicked
+        if not st.button("Analyze selected test email"):
+            return
 
         st.subheader("Parsed Email Content:")  # Changed from printing to console to displaying in Streamlit app
         st.write(email_content)  # Print the parsed email content to the Streamlit app
