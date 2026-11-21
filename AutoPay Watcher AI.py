@@ -310,7 +310,7 @@ def main():
     )
 
     if mode == "Dashboard":
-        from dashboard_ui_final import render_app
+        from dashboard_ui import render_app
         render_app(ai_extractor=extract_for_dashboard, validator=validate_subscription)
         return
     # [TODO: Call and integrate all Functions in main()]
