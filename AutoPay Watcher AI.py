@@ -4,7 +4,6 @@ import streamlit as st
 import os
 import json
 import math
-import calendar
 import calendar_reminder as cr
 from dotenv import load_dotenv
 from openai import OpenAI
