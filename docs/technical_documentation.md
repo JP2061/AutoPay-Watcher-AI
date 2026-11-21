@@ -45,144 +45,85 @@ Import cancellation dates into calendar applications\
 **End-to-End Testing**\
 Verify complete application workflow
 
+## 2. Development Environment and Main Files
 
-***Prototype Development:***
-- **Proof of Concept (PoC):** [TODO: Describe the core functions tested in the PoC]
+### Technologies Used
 
-- **Minimum Viable Product (MVP):** [TODO: Describe the intended end-to-end user flow]
+- **Python:** Reads uploaded emails, processes extracted information, and supports cancellation-date calculations.
+- **Streamlit:** Provides the web application for uploading emails, testing AI extraction, and viewing subscriptions in the dashboard.
+- **OpenAI API and LLM:** Analyze email text and return subscription details in JSON format. An LLM helps interpret different wording used in billing and cancellation policies.
+- **SQLite:** Stores imported emails and subscription records for later review.
+- **Git and GitHub:** Manage the project code and allow team members to collaborate.
 
 
-## 2. Development Environment and Setup
+### Main Files
 
-***Technologies Used:***
-- [TODO: Complete Technologies Used]
-
-***Dependencies:***
-
-The required Python libraries are listed in `requirements.txt`.
-
-- [TODO: Complete Dependencies]
-
-***Main Project Files:***
-- [TODO: Complete Main Project Files]
-
-***Installation and Setup Explanations:***
-
-- **Install Dependencies:**
-  - [TODO: Explain how to install the required Python libraries from `requirements.txt`.]
-
-- **System Configuration:**
-  - [TODO: Explain how to configure the required environment variables and the OpenAI API key without revealing credentials.]
-
-- **Run the Prototype:**
-  - [TODO: Explain the details for launching the Streamlit application, explaining the execution process,
-    required configurations, expected behavior, and how to verify that the prototype runs successfully.]
-- **README Reference:**
-  - Refer to the [README](../README.md) for basic installation, setup, and application launch instructions.
+- **`AutoPay Watcher AI.py`:** Starts the Streamlit application and connects the main user-facing features. It provides access to the dashboard and AI extraction testing so users can move between uploading an email, reviewing AI output, and viewing subscription records.
+- **`dashboard_ui.py`:** Contains the Streamlit dashboard interface for importing and viewing saved emails and managing subscription records. It handles how information is presented to users rather than performing the LLM extraction itself.
+- **`autopay_core.py`:** Supports email storage and database operations using SQLite. It helps keep imported emails and subscription information available for later selection, analysis, and review.
+- **`requirements.txt`:** Lists the Python packages the application needs so the same dependencies can be installed in another environment.
+- **`.env.example`:** Shows which environment variable is needed for the OpenAI API key without including a real credential. The actual key belongs in a private `.env` file.
+- **`samples/` and `tests/`:** Hold sample subscription emails and test code used to check extraction and application behavior without relying on private user emails.
 
 ## 3. Code Implementation
 
-The following sections describe the main components of the application. Each team member will explain their part in implementing the code including describing the functions and their integration with main, the details of implementation and the development progress.
+### Email Upload and Streamlit Dashboard – Member 1
 
-***Email Upload and Streamlit Dashboard*** – [TODO: Team Member Name]
+- **Functions:** [Member 1: Add function names.]
+- **Code explanation:** [Member 1: Explain how email upload, saved emails, and dashboard views work.]
+- **Implementation status:** [Member 1: Completed / planned / tested.]
 
-- **Functions**
-  - [TODO: List functions]
-- **Implementation**
-  - [TODO: Code explanation and details of implementation,including key design decisions and why the chosen approaches were used.]
-- **Implementation Status**
-  - [TODO: In Progress / Completed]
-- **Planned Work**
-  - [TODO: Describe functionality or improvements that have not yet been implemented.]
-    
+### AI Extraction and Email Parsing – Joshua Peng
 
-***Email Parsing and AI Integration*** – Joshua Peng
+**Function names**
+- `extract_subscription(email_content, client)` — Sends the email text to the OpenAI API and converts the returned JSON into a Python dictionary. This JSON parsing is different from reading an `.eml` file.
+- `parse_email()` — Initially used to open sample `.eml` files and extract plain-text email content for standalone AI testing. It is not called in the current integrated workflow.
 
-- **Functions**
-  - [TODO: List functions]
-- **Implementation**
-  - Once Users manually upload subscription emails in .eml format and Python reads the email files and extract the text needed for analysis, the email contents will then be sent through the OpenAI API to the LLM. The AI will return the subscription information in JSON format, including the subscription name, price, renewal date and cancellation terms.
-  - We chose to use an LLM because different companies may explain their renewal dates and cancellation policies in diffrent ways. The LLM can understand these differences without requiring us to manually write rules for every possible email format.
-- **AI Model and API**
-  - **Model:** [TODO: Model ID]
-  - **Prompt:** [TODO: Actual prompt used]
-  - **API Workflow:**Python will send an API request containing the email text and a prompt with instructions to the LLM. The LLM will return the extracted subscription information in JSON format, and Python will then read the JSON response and pass the extracted information to other parts of the application for data validation and cancellation date calculations.
-  - **Input:** Text extracted from subscription emails uploaded in .eml format
-  - **Output:** JSON containing the subscription name, price, billing frequency, renewal date and cancellation terms. If information is missing, we will tell the AI to return unknown instead of guessing the information.
-  - **AI Limitations:** The LLM may not always identify the correct information, especially when emails have unclear working or do not include all the subscription details. This could lead to inaccurate cancellation dates if the information is not checked. 
-  - **Technical Contribution:** The AI extraction component will include developing a prompt that instructs the LLM to identify important subscription information from emails. We will use the OpenAI's Python library to connect the application to the OpenAI API and process the information returned by the LLM into JSON format. We will also test the extraction using sample subscription emails with different renewal dates and cancellation policies. Based on the results of these tests, we can adjust the prompt given to the LLM to improve accuracy.
-- **Planned Work**
-  - Develop the prompt and decide how the subscription information will be organized in JSON format.
-  - Select the OpenAI API model and connect it to the Python application.
-  - Test the AI extraction using sample subscription emails with different formats and cancellation policies.
-  - Compare the information extracted by the LLM with the actual information written in the emails.
-  - Adjust the prompt based on the testing results to improve accuracy.
-  - Connect the extracted information in JSON to the data validation and cancellation date calculation part of the application.
-- **Implementation Status**
-  - Progress:
-    - 10/29/2026: Initial project planning, GitHub repository setup and discussion of team responsibilities and development plans for each part of the application.
-    - 11/13/2026: Implementation and documentation for the AI extraction part of the application.
-  - Completed:\
-    [TODO: Sections completed and date]
+**Code explanation and implementation**
+- The OpenAI API receives the parsed email text and extraction prompt. The AI returns JSON containing the subscription name, price, billing frequency, renewal date, and cancellation terms. Missing or unclear values are requested as `null` rather than guessed.
+- The prompt was updated to handle free trials, cancellation notices, and cancellation-notice amounts and units (such as 24 hours or several days). Cleanup was also added for Markdown code fences before parsing the JSON response.
+- We use an LLM because companies describe renewal dates and cancellation policies differently. Python passes the extracted information to the separate validation and cancellation-date component. The dashboard-specific extraction integration was completed by the validation teammate.
+- The `parse_email()` function was initially created to open `.eml` files and extract plain-text email content for testing the AI extraction component before integrating it with the dashboard. After integration, `main()` was modified to use the email content already parsed and stored in the SQLite database. The `initialize_database()` and `list_emails()` functions are used to access saved emails, a Streamlit selection box allows users to choose an email, and `get_email()` retrieves the selected record. The `selected_email["body_text"]` field contains the previously parsed email text, which is passed directly to `extract_subscription()` for AI analysis. This allows AI Extraction Test mode to use emails uploaded through the dashboard without parsing them again. After the OpenAI API returns JSON, the separate validation component processes the results for cancellation-date calculations and dashboard integration.
+- **Model and prompt:** GPT-6 Luna [TODO: link directly to the extraction function.]
+- **Limitation:** The AI can misread unclear prices, dates, or policies, so the output should be checked against the original email.
 
-***Data Validation and Cancellation Calculations*** – [TODO: Team Member Name]
+Implementation status
+- **Completed/updated:** Initial standalone `.eml` parsing for testing, database-based retrieval of already-parsed email text in `main()`, OpenAI extraction, JSON response parsing, and prompt improvements for missing details, free trials, and cancellation notices.
+- **Integration/testing:** The extraction is accessible through the application's **AI Extraction Test** view using saved emails.
 
-- **Functions**
-  - [TODO: List functions]
-- **Implementation**
-  - [TODO: Code explanation and details of implementation,including key design decisions and why the chosen approaches were used.]
-- **Implementation Status**
-  - [TODO: In Progress / Completed]
-- **Planned Work**
-  - [TODO: Describe functionality or improvements that have not yet been implemented.]
+### Data Validation and Cancellation Calculations – Member 3
 
-***Calendar Reminder Generation*** – [TODO: Team Member Name]
+- **Functions:** [Member 3: Add function names, including dashboard integration functions where applicable.]
+- **Code explanation:** [Member 3: Explain JSON validation, cancellation-date calculation, safety buffer, and integration of extraction results into the dashboard.]
+- **Implementation status:** [Member 3: Completed / planned / tested.]
 
-- **Functions**
-  - [TODO: List functions]
-- **Implementation**
-  - [TODO: Code explanation and details of implementation,including key design decisions and why the chosen approaches were used.]
-- **Implementation Status**
-  - [TODO: In Progress / Completed]
-- **Planned Work**
-  - [TODO: Describe functionality or improvements that have not yet been implemented.]
-    
-***Main - Functions Integration:***
-- [TODO: Explain how the main application connects the four components]
+### Calendar Reminder Generation – Member 4
+
+- **Functions:** [Member 4: Add function names.]
+- **Code explanation:** [Member 4: Explain `.ics` reminder generation and download.]
+- **Implementation status:** [Member 4: Completed / planned / tested.]
 
 ## 4. Testing and Reproducibility
 
-***Testing Procedures:***
-- [TODO: Complete Testing Procedures]
+We test with `.eml` subscription emails containing different renewal dates and cancellation requirements, including 24-hour, 48-hour, and multi-day notices. We compare the AI-extracted name, price, renewal date, and cancellation terms with the original email. We also check Python's recommended cancellation date against the stated policy and safety buffer.
 
-***Sample Test:***
-- **Input File:** [TODO: Sample email filename and file path]
-- **Expected Output:** [TODO: Expected subscription details]
-- **Actual Output:** [TODO: Results from testing]
-- **Test Status:** [TODO: Passed / Failed / Not Tested]
+To reproduce a sample result, import `samples/sample_email_1.eml`, run AI extraction, inspect JSON and validation messages in **AI Extraction Test**, and view the saved subscription in **Dashboard → Overview**.
 
-***Reproducibility:***
-- Follow Sections 3–4 of the [README](../README.md) to install and run the prototype.
-- [TODO: Provide step-by-step instructions for reproducing the sample result]
+### Sample test result
 
-***Preliminary Results:***
-- [TODO: Summarize preliminary results and testing observations]
+| Item | Result |
+|---|---|
+| Input | `samples/sample_email_1.eml` |
+| Expected | Email text, extracted subscription JSON, validation feedback, and a recommended cancellation date when enough information is available. |
+| Actual AI extraction | [Enter the extracted subscription name, price, renewal date, and cancellation terms.] |
+| Actual date calculation | [Enter the recommended date, or explain why it could not be calculated.] |
+| Comparison with source | [Record which values matched the email and any errors.] |
+| Test status | [Passed / Failed / Not yet verified] |
 
-## 5. Known Limitations and Remaining Code Integration Work
+Additional checks: Re-import the same email to verify duplicate handling. If test dependencies are installed, run `python -m pytest -v` and record **[number passed / failed]**. Do not report a test as passed without an observed result.
 
-***Known Limitations:***
-- [TODO: Complete Known Limitations. Describe current technical limitations and issues.]]
+## 5. Technical Limitations
 
-***Remaining Tasks:***
-- [TODO: Summarize remaining tasks for the overall project, including integrating all four components and completing end-to-end testing.]
-  
-## 6. Summary of Project Team and Responsibilities
+Some emails omit important billing or cancellation details, and the LLM may interpret unclear wording incorrectly. The prototype uses manually uploaded `.eml` files rather than direct Gmail syncing. OpenAI API access requires a valid key and may incur charges. Recommended cancellation dates should be checked against the original subscription terms.
 
-[TODO: Fill in name and responsibility, and update the progress status (Planned, In Progress or Completed) and dates as development progresses. Ex. Planned-10/29/26, In Progress-11/2/26, Completed-11/15/26]
-
-| **Member** | **Name** | **Responsibility** | **Progress** |
-|---|---|---|---|
-| Member 1 | [TODO – Member 1] | Email Upload and Dashboard |[TODO] |
-| Member 2 | Joshua Peng | Email Parsing and AI Integration |Planned-10/29/26, In Progress-11/13/2026|
-| Member 3 | [TODO – Member 3] | Data Validation and Cancellation Calculations |[TODO] |
-| Member 4 | [TODO – Member 4] | Calendar Reminder Generation |[TODO] |
+Overall progress, remaining tasks, and team responsibilities are covered in the separate **Phase 2 Prototype Progress Report**.
