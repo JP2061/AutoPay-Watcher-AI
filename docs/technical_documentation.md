@@ -111,7 +111,8 @@ Implementation status
 
 ### Calendar Reminder Generation – Member 4
 
-- **Functions:** [Member 4: Add function names.]
+- **Functions:**
+- make_reminder_ics() - Creates one calendar (.ics) file for a single subscription and returns it so it can be downloaded.
 - **Code explanation:** [Member 4: Explain `.ics` reminder generation and download.]
 - **Implementation status:** [Member 4: Completed / planned / tested.]
 
