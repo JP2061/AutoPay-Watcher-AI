@@ -8,7 +8,7 @@
 
 | **Feature** | **Description** |
 |---|---|
-| **Email Upload and Dashboard** | [TODO – Member 1 - Complete Description] |
+| **Email Upload and Dashboard** | The dashboard provides a centralized interface for viewing saved emails, reviewing subscription details, and managing records. The goal is to help users track recurring expenses, identify upcoming renewals, and avoid unwanted subscription charges.|
 | **AI Information Extraction** | Uses the OpenAI API to analyze subscription emails and extract important details, including subscription name, price, billing frequency, renewal date and cancellation terms, into JSON format. |
 | **Data Validation and Cancellation Calculations** | [TODO – Member 3 - Complete Description ] |
 | **Calendar Reminders** | [TODO – Member 4 - Complete Description] |
