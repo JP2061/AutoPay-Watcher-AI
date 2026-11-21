@@ -91,11 +91,23 @@ Implementation status
 - **Completed/updated:** Initial standalone `.eml` parsing for testing, database-based retrieval of already-parsed email text in `main()`, OpenAI extraction, JSON response parsing, and prompt improvements for missing details, free trials, and cancellation notices.
 - **Integration/testing:** The extraction is accessible through the application's **AI Extraction Test** view using saved emails.
 
-### Data Validation and Cancellation Calculations – Member 3
+### Data Validation and Cancellation Calculations – Triet Nguyen
 
-- **Functions:** [Member 3: Add function names, including dashboard integration functions where applicable.]
-- **Code explanation:** [Member 3: Explain JSON validation, cancellation-date calculation, safety buffer, and integration of extraction results into the dashboard.]
-- **Implementation status:** [Member 3: Completed / planned / tested.]
+**Functions:** 
+- `valid_number()` — Check if a value is a finite, nonnegative integer or float.
+- `validate_subscription()` — Receive extracted data as a dictionary, then check for required fields, valid data types, missing information. Call valid_number(value) when checking values.
+- `calculate_cancellation_date()` — Receive extracted cancellation data and a safety buffer. Calculate the recommended cancellation date if possible, using given buffer. 
+- `extract_for_dashboard()` — Call AI extraction, calculate the recommended cancellation date, and add the date and explanation notes to the extracted dictionary while preserving the existing notes.
+
+**Code explanation:**
+- The function `validate_subscription()` takes in the extracted data, and checks if it's a python dictionary. Then it proceeds to check the rest of the information. Checks for missing fields, correct data types. Name, billing cycle, cancellation policy must be nonempty strings. Price and cancellation notice amount must be finite, nonnegative numbers. Renewal date must be a valid date in the format Month DD, YYYY. Cancellation notice unit must be hours, days, weeks, or months. For months, the notice amount must be a whole number. Calls function `valid_number()` when checking values. It then returns a list of strings describing the issues, or an empty list if there are none. These messages are displayed through Streamlit by `main()` in AI Extraction Test mode and `render_mail_upload()` in Dashboard mode.
+- The function `calculate_cancellation_date()` takes in the extracted data and a safety buffer that is default to 1 day. First, it double-check if the required data is valid. The function subtracts the required notice period from the renewal date by hours, days, weeks using timedelta. For months it uses a separate calculation, which account for different month lengths and leap years. Then it subtracts the additional safety buffer amount from the calculated notice day. Returns the recommended date and `None` for error on success, returns `None` for recommended date and an error message on failure. Invalid calculation dates, data will return error message instead of a guessed date.
+- The function `extract_for_dashboard()` takes in the email's text and the openAI client. Calls the extraction function `extract_subscription()` and receives a python dictionary. Then it calls `calculate_cancellation_date()` using the extracted data, and receives a recommended date or an error message. The recommended date is stored in `cancellation_deadline`, or `None` if calculation fails. The function adds notes explaining the calculation, safety buffer, a warning if recommended date has passed, or the error messages to the existing notes and returns the updated dictionary. In `main()`, this function is passed to dashboard as the extraction callback, which will be called when the user requests analysis.
+
+- **Implementation status:**
+- Completed: Data validation, cancellation calculations, dashboard integration are implemented. Supports different cancellation notice units (hours, days, weeks, months, with 1 day safety buffer). Calculated dates are recommendations and may require user review.
+- Tested: Validation and calculations were tested with sample emails with valid and invalid inputs. Dashboard integration testing show that validation messages, recommended dates, and calculation notes appear in the right sections.
+- Planned: Change text format, colors to improve date visibility. Correct remaining grammar and spacing issues.
 
 ### Calendar Reminder Generation – Member 4
 
