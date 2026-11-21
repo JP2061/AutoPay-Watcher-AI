@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-[TODO: Complete Project Overview]
+AutoPay Watcher AI helps users organize subscription information from emails and identify when they should cancel to avoid unwanted renewal charges. 
 
 ## 2. Project Features
 
