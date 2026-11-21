@@ -113,9 +113,20 @@ Implementation status
 
 - **Functions:**
 - make_reminder_ics() - Creates one calendar (.ics) file for a single subscription and returns it so it can be downloaded.
-- **Code explanation:** [Member 4: Explain `.ics` reminder generation and download.]
-- **Implementation status:** [Member 4: Completed / planned / tested.]
-
+- make_reminders_ics() — Creates one calendar file that holds reminders for a list of subscriptions.
+- build_event() and build_calendar() — Helper functions that build the calendar event and wrap it into the full .ics file. Smaller helpers handle date formatting and text cleanup so the file follows the calendar format rules.
+- 
+- **Code explanation:**
+- This part is in calendar_reminder.py and only uses Python's built in libraries, so it does not add anything to requirements.txt. It makes files in the .ics calendar format, which Google Calendar, Outlook, and Apple Calendar can all open.
+- It takes the recommended cancellation date from the validation component and makes an all-day event titled "Cancel [service] before you're charged." The event also holds the price, renewal date, and cancellation notes.
+- Each event has an alarm that reminds the user a set number of days before the date. The user can choose how many days ahead they want the reminder from the dashboard.
+- On the dashboard, each subscription uses a download button that calls this module and hands the user the .ics file, which opens directly in their calendar app.
+- 
+- **Implementation status:**
+- Completed: The calendar_reminder.py module — .ics generation for one or many subscriptions, and the reminder alarm with an adjustable lead time.
+- Tested: Ran the module to generate a sample .ics file and opened it in a calendar app to confirm the event and reminder show up correctly.
+- Planned: A future version could add events straight to the user's Google Calendar through the Google Calendar API instead of downloading a file.
+  
 ## 4. Testing and Reproducibility
 
 We test with `.eml` subscription emails containing different renewal dates and cancellation requirements, including 24-hour, 48-hour, and multi-day notices. We compare the AI-extracted name, price, renewal date, and cancellation terms with the original email. We also check Python's recommended cancellation date against the stated policy and safety buffer.
