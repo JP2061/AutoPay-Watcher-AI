@@ -11,7 +11,7 @@
 | **Email Upload and Dashboard** | The dashboard provides a centralized interface for viewing saved emails, reviewing subscription details, and managing records. The goal is to help users track recurring expenses, identify upcoming renewals, and avoid unwanted subscription charges.|
 | **AI Information Extraction** | Uses the OpenAI API to analyze subscription emails and extract important details, including subscription name, price, billing frequency, renewal date and cancellation terms, into JSON format. |
 | **Data Validation and Cancellation Calculations** | Retrieve extracted data and validate information by checking for missing fields, valid data types, valid dates. Calculates recommended cancellation dates using required notice period and safety buffer. |
-| **Calendar Reminders** | [TODO – Member 4 - Complete Description] |
+| **Calendar Reminders** | Generates downloadable calendar (.ics) files from each subscription's recommended cancellation date, so users can import reminders into Google Calendar, Outlook, or Apple Calendar. Each reminder includes an alarm that notifies the user a chosen number of days before the deadline to help them cancel before an unwanted charge. |
 
 ## 3. Installation and Setup
 
