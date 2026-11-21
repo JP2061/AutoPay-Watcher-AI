@@ -67,11 +67,54 @@ Verify complete application workflow
 
 ## 3. Code Implementation
 
-### Email Upload and Streamlit Dashboard – Member 1
+### Email Upload and Streamlit Dashboard – joshua gragg
 
-- **Functions:** [Member 1: Add function names.]
-- **Code explanation:** [Member 1: Explain how email upload, saved emails, and dashboard views work.]
-- **Implementation status:** [Member 1: Completed / planned / tested.]
+**Function names**
+
+**Dashboard functions (`dashboard_ui.py`):**
+- `render_app()` — Initializes the application interface and displays the selected dashboard page.
+- `render_sidebar()` — Provides navigation between Overview, Email inbox, Manage records, and Team integration.
+- `render_mail_upload()` — Handles email uploading, saved email selection, duplicate import messages, and optional AI analysis.
+- `render_dashboard()` — Displays active subscriptions, free trials, upcoming renewal dates, and estimated recurring costs.
+- `render_subscription_card()` — Displays individual subscription details.
+- `render_manage()` — Provides interfaces for adding, editing, archiving, and restoring subscription records.
+- `subscription_form()` — Handles subscription data entry and editing.
+- `render_integration()` — Provides an interface for importing JSON subscription records.
+
+**Database and email functions (`autopay_core.py`):**
+- `initialize_database()` — Creates the SQLite database tables.
+- `read_email()` — Parses uploaded `.eml` and `.txt` files.
+- `add_email()` — Saves uploaded emails and checks for duplicates using SHA-256 hashes.
+- `list_emails()` and `get_email()` — Retrieve saved emails.
+- `email_for_ai()` — Prepares stored email information for AI extraction.
+- `save_subscription()` and `list_subscriptions()` — Store, update, and retrieve subscription records.
+- `archive_subscription()` — Archives or restores subscriptions.
+- `delete_email()` — Removes stored emails.
+
+**Code explanation and implementation**
+
+The Email Upload and Dashboard component uses Streamlit to provide a web interface for managing recurring subscriptions and free trials.
+
+Users can upload `.eml` and `.txt` files through the Email inbox page. The application parses these files to retrieve email information, including the sender, subject, date, and message body. Uploaded emails are stored locally in a SQLite database. Each email is checked using a SHA-256 hash to prevent duplicate imports.
+
+The dashboard organizes saved subscription records into Free trials, Active subscriptions, and Needs review categories. It displays expected charges, billing frequencies, renewal dates, and available cancellation information. It also calculates estimated monthly and yearly recurring costs when sufficient billing information is available.
+
+The Manage records page allows users to manually create, edit, archive, and restore subscription records.
+
+The email upload component also connects to the team's AI extraction function. Users can select a saved email, request AI analysis, review the returned JSON data, and save the resulting subscription information to the dashboard.
+
+The implementation separates the Streamlit user interface in `dashboard_ui.py` from the email parsing and SQLite database operations in `autopay_core.py`.
+
+**Implementation status**
+
+- Implemented: Streamlit dashboard and navigation.
+- Implemented: Email upload and parsing.
+- Implemented: SQLite database storage and retrieval.
+- Implemented: SHA-256 duplicate detection.
+- Implemented: Subscription display, editing, and archiving.
+- Implemented in code: Optional AI extraction handoff and JSON import.
+- Verified: Nine isolated database and storage checks passed.
+- Remaining verification: Manual Streamlit interface testing and complete end-to-end AI integration testing.
 
 ### AI Extraction and Email Parsing – Joshua Peng
 
@@ -145,7 +188,47 @@ To reproduce a sample result, import `samples/sample_email_1.eml`, run AI extrac
 | Test status | [Passed / Failed / Not yet verified] |
 
 Additional checks: Re-import the same email to verify duplicate handling. If test dependencies are installed, run `python -m pytest -v` and record **[number passed / failed]**. Do not report a test as passed without an observed result.
+dashboard testing 
+### Email Upload and Dashboard Testing – joshua gragg
 
+The Email Upload and Dashboard components were tested using automated pytest tests and manual testing through the Streamlit interface. Testing focused on verifying email uploading, parsing, database storage, duplicate prevention, subscription management, and integration with the team's AI extraction component.
+
+**Automated Testing**
+
+Automated tests were performed using Python 3.13.5 and pytest 8.4.1 on Windows.
+
+The tests verified the following functionality:
+
+- Email parsing for `.eml` and `.txt` files.
+- Validation of uploaded files, including invalid formats, empty files, and files exceeding the 2 MB limit.
+- SQLite database initialization and storage.
+- Duplicate email detection using SHA-256 hashes.
+- Retrieval and deletion of saved emails.
+- Subscription creation, editing, archiving, and restoration.
+- Dashboard navigation and subscription display.
+- Integration of AI-extracted JSON data with subscription records using mocked responses.
+- Validation of missing or invalid subscription information.
+
+**Automated Test Results**
+
+| Test File | Passed | Failed |
+|---|---:|---:|
+| `test_member1.py` | 43 | 0 |
+| `test_autopay_core.py` | 11 | 0 |
+| `test_team_schema.py` | 4 | 0 |
+| **Total** | **58** | **0** |
+
+All 58 automated tests passed successfully in 2.79 seconds.
+
+**Manual Testing**
+
+Manual testing was also performed through the Streamlit application to verify the user-facing interface. This included uploading sample emails, viewing saved email contents, checking duplicate import handling, navigating the dashboard, and managing subscription records.
+
+**Testing Conclusion**
+
+All automated tests passed, and manual testing of the Streamlit application was previously completed. These results support the functionality of the Email Upload and Dashboard components and their integration with the application's local database.
+
+The automated tests used temporary databases and mocked AI responses. Therefore, the results do not independently verify live OpenAI API responses or the complete calendar reminder workflow.
 ## 5. Technical Limitations
 
 Some emails omit important billing or cancellation details, and the LLM may interpret unclear wording incorrectly. The prototype uses manually uploaded `.eml` files rather than direct Gmail syncing. OpenAI API access requires a valid key and may incur charges. Recommended cancellation dates should be checked against the original subscription terms.
