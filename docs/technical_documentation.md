@@ -46,8 +46,13 @@ Import cancellation dates into calendar applications\
 ↓\
 **End-to-End Testing**\
 Verify complete application workflow
+## 2. Development Progress
+### Proof of Concept (PoC)
+Our PoC focuses on testing whether the OpenAI API can successfully analyze subscription emails uploaded through our Streamlit application and dashboard and extract important information into JSON format. Python reads the uploaded .eml files and sends the email text to the LLM for analysis. The AI identifies subscription details, including the subscription name, price, billing frequency, renewal date, and cancellation terms. Python then validates the extracted information and calculates a recommended cancellation date based on the company's cancellation policy, with an additional safety buffer. 
+### Minimum Viable Product (MVP)
+Our MVP builds on the PoC by integrating all components into a complete Streamlit application. Users will be able to upload subscription emails, have their information extracted by AI, review and edit subscription details, and view their subscriptions and recommended cancellation dates in the dashboard, organized into Free Trials and Active Subscriptions. Users will also be able to download .ics calendar reminders that can be imported into Google Calendar, Outlook, or Apple Calendar. We will test the complete end-to-end workflow using sample subscription emails with different renewal dates and cancellation policies. Optional future features include Gmail syncing and additional AI-assisted cancellation features.
 
-## 2. Development Environment and Main Files
+## 3. Development Environment and Main Files
 
 ### Technologies Used
 
@@ -67,7 +72,7 @@ Verify complete application workflow
 - **`.env.example`:** Shows which environment variable is needed for the OpenAI API key without including a real credential. The actual key belongs in a private `.env` file.
 - **`samples/` and `tests/`:** Hold sample subscription emails and test code used to check extraction and application behavior without relying on private user emails.
 
-## 3. Code Implementation
+## 4. Code Implementation
 
 ### Email Upload and Streamlit Dashboard – joshua gragg
 
@@ -172,7 +177,7 @@ The implementation separates the Streamlit user interface in `dashboard_ui.py` f
 - Tested: Ran the module to generate a sample .ics file and opened it in a calendar app to confirm the event and reminder show up correctly.
 - Planned: A future version could add events straight to the user's Google Calendar through the Google Calendar API instead of downloading a file.
   
-## 4. Testing and Reproducibility
+## 5. Testing and Reproducibility
 
 We test with `.eml` subscription emails containing different renewal dates and cancellation requirements, including 24-hour, 48-hour, and multi-day notices. We compare the AI-extracted name, price, renewal date, and cancellation terms with the original email. We also check Python's recommended cancellation date against the stated policy and safety buffer.
 
@@ -243,7 +248,7 @@ Manual testing was also performed through the Streamlit application to verify th
 All automated tests passed, and manual testing of the Streamlit application was previously completed. These results support the functionality of the Email Upload and Dashboard components and their integration with the application's local database.
 
 The automated tests used temporary databases and mocked AI responses. Therefore, the results do not independently verify live OpenAI API responses or the complete calendar reminder workflow.
-## 5. Technical Limitations
+## 6. Technical Limitations
 
 Some emails omit important billing or cancellation details, and the LLM may interpret unclear wording incorrectly. The prototype uses manually uploaded `.eml` files rather than direct Gmail syncing. OpenAI API access requires a valid key and may incur charges. Recommended cancellation dates should be checked against the original subscription terms.
 
