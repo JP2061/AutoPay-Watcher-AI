@@ -46,7 +46,7 @@ Import cancellation dates into calendar applications\
 ↓\
 **End-to-End Testing**\
 Verify complete application workflow
-## 2. Development Progress
+## 2. Development Progress: PoC-to-MVP
 ### Proof of Concept (PoC)
 Our PoC focuses on testing whether the OpenAI API can successfully analyze subscription emails uploaded through our Streamlit application and dashboard and extract important information into JSON format. Python reads the uploaded .eml files and sends the email text to the LLM for analysis. The AI identifies subscription details, including the subscription name, price, billing frequency, renewal date, and cancellation terms. Python then validates the extracted information and calculates a recommended cancellation date based on the company's cancellation policy, with an additional safety buffer. 
 ### Minimum Viable Product (MVP)
